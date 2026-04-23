@@ -97,6 +97,11 @@
             position: relative;
             background-color: #111;
             overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px 90px; /* Espacio seguro para los botones */
+            box-sizing: border-box;
         }
 
         .bg-blur {
@@ -111,19 +116,17 @@
             z-index: 1;
         }
 
-        .book-container {
-            position: absolute;
-            top: 40px;
-            bottom: 40px;
-            left: 90px;
-            right: 90px;
+        /* Bloquea la proporción matemática del visor para evitar que las páginas se separen */
+        .book-aspect {
+            height: 100%;
+            max-width: 100%;
+            aspect-ratio: 1240 / 874; /* Relación exacta de 2 páginas abiertas */
             z-index: 5;
         }
 
         #book {
             width: 100%;
             height: 100%;
-            transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
         }
 
         .page {
@@ -176,11 +179,11 @@
         .nav-btn.next { right: 20px; }
 
         @media (max-width: 768px) {
-            .book-container {
-                left: 10px;
-                right: 10px;
-                top: 15px;
-                bottom: 70px;
+            .viewer-area {
+                padding: 20px 20px 80px 20px;
+            }
+            .book-aspect {
+                aspect-ratio: 620 / 874; /* En móviles se muestra solo 1 página */
             }
             .nav-btn {
                 width: 40px;
@@ -219,10 +222,13 @@
 
     <main class="viewer-area">
         <div class="bg-blur" id="bg-blur"></div>
-        <button id="btn-prev" class="nav-btn prev">&#10094;</button>
-        <div class="book-container">
+        <button id="btn-prev" class="nav-btn prev" style="display: none;">&#10094;</button>
+        
+        <!-- Contenedor que restringe la deformación -->
+        <div class="book-aspect">
             <div id="book"></div>
         </div>
+
         <button id="btn-next" class="nav-btn next">&#10095;</button>
     </main>
 
@@ -285,9 +291,9 @@
                     height: altoBase, 
                     size: "stretch", 
                     minWidth: 300,
-                    maxWidth: 1240,
+                    maxWidth: 3000, /* Ampliado para no chocar con las restricciones CSS */
                     minHeight: 400,
-                    maxHeight: 1748,
+                    maxHeight: 4000, /* Ampliado para no chocar con las restricciones CSS */
                     showCover: true, 
                     usePortrait: true,
                     maxShadowOpacity: 0.5,
@@ -296,30 +302,22 @@
 
                 pageFlip.loadFromHTML(bookElement.querySelectorAll('.page'));
 
-                function centrarTapas(pagina, orientacion) {
-                    if (orientacion === 'portrait') {
-                        bookElement.style.transform = 'translateX(0)';
-                    } else {
-                        if (pagina === 0) {
-                            bookElement.style.transform = 'translateX(-25%)';
-                        } else if (pagina >= paginasTotales - 1) {
-                            bookElement.style.transform = 'translateX(25%)';
-                        } else {
-                            bookElement.style.transform = 'translateX(0)';
-                        }
-                    }
+                // Control dinámico de las flechas
+                function updateArrows(page) {
+                    const total = pageFlip.getPageCount();
+                    const prevBtn = document.getElementById('btn-prev');
+                    const nextBtn = document.getElementById('btn-next');
+                    
+                    prevBtn.style.display = (page === 0) ? 'none' : 'flex';
+                    nextBtn.style.display = (page >= total - 1) ? 'none' : 'flex';
                 }
 
                 pageFlip.on('flip', (e) => {
-                    centrarTapas(e.data, pageFlip.getOrientation());
-                });
-
-                pageFlip.on('changeOrientation', (e) => {
-                    centrarTapas(pageFlip.getCurrentPageIndex(), e.data);
+                    updateArrows(e.data);
                 });
 
                 setTimeout(() => {
-                    centrarTapas(pageFlip.getCurrentPageIndex(), pageFlip.getOrientation());
+                    updateArrows(pageFlip.getCurrentPageIndex());
                 }, 50);
 
                 document.getElementById('btn-prev').addEventListener('click', () => {
