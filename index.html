@@ -7,25 +7,27 @@
     <link rel="icon" type="image/x-icon" href="logo.ico">
     <style>
         body {
-            background: #1a1a1a;
+            background: #111;
             margin: 0;
             padding: 0;
             display: flex;
             flex-direction: column;
             height: 100vh;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             overflow: hidden;
             color: #fff;
         }
 
         .topbar {
-            flex: 0 0 60px;
+            flex: 0 0 64px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             padding: 0 24px;
-            background-color: #242424;
-            border-bottom: 1px solid #111;
+            background-color: rgba(20, 20, 20, 0.75);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
             z-index: 20;
             box-sizing: border-box;
         }
@@ -33,19 +35,20 @@
         .title-container {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 16px;
         }
 
         .topbar-logo {
-            height: 32px;
+            height: 28px;
             width: auto;
             object-fit: contain;
         }
 
         .document-title {
-            font-size: 16px;
-            font-weight: 600;
-            color: #eaeaea;
+            font-size: 15px;
+            font-weight: 500;
+            color: #f5f5f5;
+            letter-spacing: 0.3px;
         }
 
         .actions {
@@ -54,62 +57,79 @@
         }
 
         .btn-action {
-            padding: 8px 16px;
-            border-radius: 4px;
-            font-size: 14px;
+            padding: 8px 18px;
+            border-radius: 6px;
+            font-size: 13px;
             font-weight: 600;
             cursor: pointer;
             text-decoration: none;
-            transition: all 0.2s;
+            transition: all 0.2s ease;
             display: flex;
             align-items: center;
             justify-content: center;
         }
 
         .btn-primary {
-            background-color: #0070f3;
-            color: white;
+            background-color: #ffffff;
+            color: #000000;
             border: none;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
         }
 
         .btn-primary:hover {
-            background-color: #005bb5;
+            background-color: #e0e0e0;
+            transform: translateY(-1px);
         }
 
         .btn-outline {
-            background-color: transparent;
+            background-color: rgba(255, 255, 255, 0.08);
             color: #eaeaea;
-            border: 1px solid #eaeaea;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .btn-outline:hover {
-            background-color: rgba(255, 255, 255, 0.1);
+            background-color: rgba(255, 255, 255, 0.15);
+            color: #ffffff;
         }
 
         .viewer-area {
             flex: 1;
             position: relative;
-            background: linear-gradient(135deg, #2b2b2b 0%, #0a0a0a 100%);
+            background-color: #111;
             overflow: hidden;
+        }
+
+        .bg-blur {
+            position: absolute;
+            top: -10%;
+            left: -10%;
+            width: 120%;
+            height: 120%;
+            background-size: cover;
+            background-position: center;
+            filter: blur(40px) brightness(0.5);
+            z-index: 1;
         }
 
         .book-container {
             position: absolute;
-            top: 30px;
-            bottom: 30px;
-            left: 80px;
-            right: 80px;
+            top: 40px;
+            bottom: 40px;
+            left: 90px;
+            right: 90px;
+            z-index: 5;
         }
 
         #book {
             width: 100%;
             height: 100%;
-            transition: transform 0.5s ease-in-out;
+            transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
         }
 
         .page {
             background-color: #fff;
             overflow: hidden;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.05);
         }
 
         .page img {
@@ -130,49 +150,55 @@
             position: absolute;
             top: 50%;
             transform: translateY(-50%);
-            background: rgba(0, 0, 0, 0.5);
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
             color: white;
-            border: 1px solid rgba(255,255,255,0.1);
-            width: 44px;
-            height: 60px;
-            font-size: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            width: 48px;
+            height: 48px;
+            font-size: 20px;
             cursor: pointer;
             z-index: 100;
-            transition: background 0.2s;
+            transition: all 0.2s ease;
             display: flex;
             justify-content: center;
             align-items: center;
-            border-radius: 4px;
+            border-radius: 50%;
         }
 
         .nav-btn:hover {
-            background: rgba(0, 0, 0, 0.9);
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-50%) scale(1.05);
         }
 
-        .nav-btn.prev { left: 15px; }
-        .nav-btn.next { right: 15px; }
+        .nav-btn.prev { left: 20px; }
+        .nav-btn.next { right: 20px; }
 
         @media (max-width: 768px) {
             .book-container {
                 left: 10px;
                 right: 10px;
-                top: 10px;
-                bottom: 60px;
+                top: 15px;
+                bottom: 70px;
             }
             .nav-btn {
-                width: 32px;
-                height: 50px;
-                font-size: 18px;
+                width: 40px;
+                height: 40px;
+                font-size: 16px;
                 top: auto;
-                bottom: 5px;
+                bottom: 15px;
                 transform: none;
             }
-            .nav-btn.prev { left: 30%; }
-            .nav-btn.next { right: 30%; }
-            .topbar { flex-wrap: wrap; height: auto; padding: 10px 15px; gap: 10px; }
+            .nav-btn:hover {
+                transform: scale(1.05);
+            }
+            .nav-btn.prev { left: 35%; }
+            .nav-btn.next { right: 35%; }
+            .topbar { flex-wrap: wrap; height: auto; padding: 12px 16px; gap: 12px; }
             .title-container { width: 100%; justify-content: flex-start; }
             .actions { gap: 8px; width: 100%; justify-content: flex-end; }
-            .btn-action { padding: 6px 10px; font-size: 12px; }
+            .btn-action { padding: 8px 12px; font-size: 12px; }
         }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/page-flip/dist/js/page-flip.browser.js"></script>
@@ -192,6 +218,7 @@
     </header>
 
     <main class="viewer-area">
+        <div class="bg-blur" id="bg-blur"></div>
         <button id="btn-prev" class="nav-btn prev">&#10094;</button>
         <div class="book-container">
             <div id="book"></div>
@@ -211,6 +238,13 @@
             const altoBase = 874;   
             
             document.getElementById('download-link').href = modoPrueba ? '#' : rutaPDF;
+
+            const bgBlur = document.getElementById('bg-blur');
+            if (modoPrueba) {
+                bgBlur.style.backgroundImage = `url('https://placehold.co/${anchoBase}x${altoBase}/f8f9fa/333333?text=Portada')`;
+            } else {
+                bgBlur.style.backgroundImage = `url('paginas/1.${extension}')`;
+            }
 
             const bookElement = document.getElementById('book');
 
