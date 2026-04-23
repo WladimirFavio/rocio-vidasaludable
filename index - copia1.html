@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visor VIDA SALUDABLE</title>
+    <style>
+        body {
+            background: #1a1a1a;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+            color: #fff;
+        }
+
+        .topbar {
+            flex: 0 0 60px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 24px;
+            background-color: #242424;
+            border-bottom: 1px solid #111;
+            z-index: 20;
+            box-sizing: border-box;
+        }
+
+        .document-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #eaeaea;
+        }
+
+        .actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn-action {
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-primary {
+            background-color: #0070f3;
+            color: white;
+            border: none;
+        }
+
+        .btn-primary:hover {
+            background-color: #005bb5;
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            color: #eaeaea;
+            border: 1px solid #eaeaea;
+        }
+
+        .btn-outline:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .viewer-area {
+            flex: 1;
+            position: relative;
+            background: linear-gradient(135deg, #2b2b2b 0%, #0a0a0a 100%);
+            overflow: hidden;
+        }
+
+        .book-container {
+            position: absolute;
+            top: 30px;
+            bottom: 30px;
+            left: 80px;
+            right: 80px;
+        }
+
+        #book {
+            width: 100%;
+            height: 100%;
+        }
+
+        .page {
+            background-color: #fff;
+            overflow: hidden;
+        }
+
+        .page img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            pointer-events: none;
+            user-select: none;
+            display: block;
+            background-color: #fff;
+        }
+
+        .page-cover {
+            background-color: #111;
+        }
+
+        .nav-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.1);
+            width: 44px;
+            height: 60px;
+            font-size: 24px;
+            cursor: pointer;
+            z-index: 100;
+            transition: background 0.2s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 4px;
+        }
+
+        .nav-btn:hover {
+            background: rgba(0, 0, 0, 0.9);
+        }
+
+        .nav-btn.prev { left: 15px; }
+        .nav-btn.next { right: 15px; }
+
+        @media (max-width: 768px) {
+            .book-container {
+                left: 10px;
+                right: 10px;
+                top: 10px;
+                bottom: 60px;
+            }
+            .nav-btn {
+                width: 32px;
+                height: 50px;
+                font-size: 18px;
+                top: auto;
+                bottom: 5px;
+                transform: none;
+            }
+            .nav-btn.prev { left: 30%; }
+            .nav-btn.next { right: 30%; }
+            .topbar { flex-wrap: wrap; height: auto; padding: 10px 15px; gap: 10px; }
+            .actions { gap: 8px; width: 100%; justify-content: flex-end; }
+            .btn-action { padding: 6px 10px; font-size: 12px; }
+            .document-title { width: 100%; text-align: left; }
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/page-flip/dist/js/page-flip.browser.js"></script>
+</head>
+<body>
+
+    <header class="topbar">
+        <div class="document-title">GUÍA DIDÁCTICA VIDA SALUDABLE</div>
+        <div class="actions">
+            <button id="btn-start" class="btn-action btn-outline">Ir al Inicio</button>
+            <button id="btn-fullscreen" class="btn-action btn-outline">Pantalla Completa</button>
+            <a href="#" id="download-link" class="btn-action btn-primary" download>Descargar PDF</a>
+        </div>
+    </header>
+
+    <main class="viewer-area">
+        <button id="btn-prev" class="nav-btn prev">&#10094;</button>
+        <div class="book-container">
+            <div id="book"></div>
+        </div>
+        <button id="btn-next" class="nav-btn next">&#10095;</button>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            
+            const totalPaginasReales = 8; 
+            const modoPrueba = false; 
+            const extension = 'jpg'; 
+            const rutaPDF = 'documento.pdf'; 
+
+            const anchoBase = 620;  
+            const altoBase = 874;   
+            
+            document.getElementById('download-link').href = modoPrueba ? '#' : rutaPDF;
+
+            const bookElement = document.getElementById('book');
+
+            const paginasTotales = totalPaginasReales % 2 !== 0 ? totalPaginasReales + 1 : totalPaginasReales;
+
+            for (let i = 1; i <= paginasTotales; i++) {
+                const pageDiv = document.createElement('div');
+                
+                if (i === 1 || i === paginasTotales) {
+                    pageDiv.className = 'page page-cover';
+                } else {
+                    pageDiv.className = 'page';
+                }
+
+                if (i > totalPaginasReales) {
+                    pageDiv.style.backgroundColor = "#ffffff";
+                } else {
+                    const img = document.createElement('img');
+                    img.draggable = false;
+                    
+                    if (modoPrueba) {
+                        let texto = i === 1 ? 'Portada' : (i === totalPaginasReales ? 'Contraportada' : `Pagina ${i}`);
+                        img.src = `https://placehold.co/${anchoBase}x${altoBase}/f8f9fa/333333?text=${texto}`;
+                    } else {
+                        img.src = `paginas/${i}.${extension}`; 
+                    }
+                    
+                    img.alt = `Página ${i}`;
+                    pageDiv.appendChild(img);
+                }
+                
+                bookElement.appendChild(pageDiv);
+            }
+
+            try {
+                const pageFlip = new St.PageFlip(bookElement, {
+                    width: anchoBase,  
+                    height: altoBase, 
+                    size: "stretch", 
+                    minWidth: 300,
+                    maxWidth: 1240,
+                    minHeight: 400,
+                    maxHeight: 1748,
+                    showCover: true, 
+                    usePortrait: true,
+                    maxShadowOpacity: 0.5,
+                    mobileScrollSupport: false 
+                });
+
+                pageFlip.loadFromHTML(bookElement.querySelectorAll('.page'));
+
+                document.getElementById('btn-prev').addEventListener('click', () => {
+                    pageFlip.flipPrev();
+                });
+
+                document.getElementById('btn-next').addEventListener('click', () => {
+                    pageFlip.flipNext();
+                });
+
+                document.getElementById('btn-start').addEventListener('click', () => {
+                    pageFlip.flip(0);
+                });
+
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'ArrowLeft') {
+                        pageFlip.flipPrev();
+                    } else if (e.key === 'ArrowRight') {
+                        pageFlip.flipNext();
+                    }
+                });
+
+            } catch (error) {
+                bookElement.innerHTML = `<div style="color:red; background:white; padding:20px; text-align:center;">Error al iniciar visor: ${error.message}</div>`;
+                console.error(error);
+            }
+
+            const fullscreenBtn = document.getElementById('btn-fullscreen');
+            
+            fullscreenBtn.addEventListener('click', () => {
+                if (!document.fullscreenElement) {
+                    document.documentElement.requestFullscreen().catch(err => {
+                        console.error(`Error al iniciar pantalla completa: ${err.message}`);
+                    });
+                } else {
+                    document.exitFullscreen();
+                }
+            });
+
+            document.addEventListener('fullscreenchange', () => {
+                if (document.fullscreenElement) {
+                    fullscreenBtn.textContent = 'Salir';
+                } else {
+                    fullscreenBtn.textContent = 'Pantalla Completa';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
